@@ -11,10 +11,10 @@
       background-color: #fff0f5;
       background-image: radial-gradient(circle, #ffb6c1 4px, transparent 4px);
       background-size: 32px 32px;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      min-height: 100vh;
+
+
+
     }
 
     header {
@@ -32,9 +32,13 @@
     }
 
     .layout {
+    .layout {
       display: flex;
-      flex: 1;
-      overflow: hidden;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      gap: 20px;
+      align-items: flex-start;
     }
 
     /* サイドバー */
@@ -45,7 +49,7 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      overflow: hidden;
+
     }
 
     .calendar-wrap {
@@ -81,7 +85,7 @@
       font-size: 13px;
     }
 
-    .entry-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .entry-list { max-height: 300px; overflow-y: auto; padding: 8px 0; }
     .entry-item {
       padding: 8px 12px; cursor: pointer;
       border-bottom: 1px solid #fff0f5;
@@ -102,8 +106,8 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      padding: 20px;
+
+
       gap: 12px;
     }
 
@@ -125,7 +129,7 @@
     .btn.red { background: #ffe0e6; color: #c0404a; }
     .btn.red:hover { background: #ffc8d0; }
 
-    .editor-body { flex: 1; display: flex; gap: 12px; overflow: hidden; }
+    .editor-body { display: flex; gap: 12px; }
 
     textarea#diary-text {
       flex: 1; padding: 14px; border: 1px solid #ffccd5; border-radius: 8px;
@@ -136,7 +140,7 @@
 
     /* メモパネル */
     .memo-panel {
-      width: 200px; display: flex; flex-direction: column; gap: 6px;
+      width: 320px; display: flex; flex-direction: column; gap: 6px;
     }
     .memo-panel label { font-size: 12px; color: #ffb6c1; font-weight: bold; }
     textarea#memo-text {
@@ -163,22 +167,67 @@
       height: 8px; background: #ffd6e0; border-radius: 4px; overflow: hidden;
     }
     .ai-bar-fill { height: 100%; background: #ffb6c1; border-radius: 4px; transition: width 0.5s; }
+
+    /* チャットパネル */
+    .chat-panel {
+      background: rgba(255,255,255,0.95);
+      border: 1px solid #ffccd5;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      height: 320px;
+      flex-shrink: 0;
+    }
+    .chat-header {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffb6c1;
+      border-bottom: 1px solid #ffd6e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+    .chat-msg.user { align-self: flex-end; background: #ffb6c1; color: white; border-bottom-right-radius: 4px; }
+    .chat-msg.ai { align-self: flex-start; background: #f5f5f5; color: #333; border-bottom-left-radius: 4px; }
+    .chat-input-row { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid #ffd6e0; }
+    .chat-input-row input { flex: 1; padding: 7px 12px; border: 1px solid #ffccd5; border-radius: 20px; font-size: 13px; }
+    .chat-input-row input:focus { outline: none; border-color: #ffb6c1; }
+    .summary-preview {
+      margin: 0 14px 10px;
+      padding: 10px 12px;
+      background: #fff5f7;
+      border: 1px solid #ffb6c1;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      display: none;
+    }
+    .summary-actions { display: flex; gap: 8px; margin: 0 14px 10px; display: none; }
   </style>
 </head>
 <body>
-  <header>🐱 ねこちゃんの日記</header>
+  <header>
+    <span>🐱 ねこちゃんの日記</span>
+    <div style="display:flex;gap:8px;">
+      <button onclick="document.getElementById('section-diary').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.25);color:white;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;">日記</button>
+      <button onclick="document.getElementById('section-schedule').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.25);color:white;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;">明日の予定</button>
+      <button onclick="document.getElementById('section-chat').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.25);color:white;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;">AIチャット</button>
+    </div>
+  </header>
 
   <div class="layout">
     <!-- サイドバー -->
     <div class="sidebar">
-      <div class="calendar-wrap">
-        <div class="cal-nav">
-          <button onclick="changeMonth(-1)">&#8249;</button>
-          <span id="cal-title"></span>
-          <button onclick="changeMonth(1)">&#8250;</button>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
       <div class="search-wrap">
         <input type="text" id="search-input" placeholder="🔍 検索..." oninput="searchEntries()">
       </div>
@@ -187,7 +236,7 @@
 
     <!-- メインエリア -->
     <div class="main">
-      <div class="editor-header">
+      <div id="section-diary" class="editor-header">
         <span class="editor-date" id="editor-date"></span>
         <select class="cat-select" id="cat-select">
           <option value="日常">日常</option>
@@ -215,6 +264,49 @@
           <label>📝 メモ</label>
           <textarea id="memo-text" placeholder="メモ..."></textarea>
           <div class="memo-saved" id="memo-saved"></div>
+        </div>
+      </div>
+
+      <!-- 明日の予定 + カレンダー -->
+      <div id="section-schedule" style="display:flex;gap:16px;align-items:flex-start;">
+        <div style="background:rgba(255,255,255,0.95);border:1px solid #ffccd5;border-radius:8px;padding:16px;flex:1;min-width:300px;">
+          <div style="font-size:13px;font-weight:bold;color:#ffb6c1;margin-bottom:10px;">📅 明日の予定</div>
+          <textarea id="schedule-text" placeholder="明日の予定を書いてね..." style="width:100%;padding:12px;border:1px solid #ffccd5;border-radius:6px;font-size:14px;line-height:1.7;resize:vertical;min-height:120px;background:white;"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+            <button class="btn" onclick="saveSchedule()">保存</button>
+          </div>
+          <div id="schedule-status" style="font-size:12px;color:#ffb6c1;margin-top:4px;text-align:right;"></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.95);border:1px solid #ffccd5;border-radius:8px;padding:16px;flex-shrink:0;width:260px;">
+          <div class="cal-nav" style="margin-bottom:8px;">
+            <button onclick="changeMonth(-1)" style="background:none;border:none;color:#ffb6c1;font-size:18px;cursor:pointer;padding:0 4px;">&#8249;</button>
+            <span id="cal-title" style="font-size:14px;font-weight:bold;color:#ffb6c1;"></span>
+            <button onclick="changeMonth(1)" style="background:none;border:none;color:#ffb6c1;font-size:18px;cursor:pointer;padding:0 4px;">&#8250;</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+      </div>
+
+      <!-- チャットパネル -->
+      <div id="section-chat" class="chat-panel">
+        <div class="chat-header">
+          <span>💬 AIと話して日記を書く</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn gray" style="font-size:11px;padding:3px 10px;" onclick="summarizeChat()">要約して確認</button>
+            <button class="btn gray" style="font-size:11px;padding:3px 10px;" onclick="clearChat()">クリア</button>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg ai">こんにちは！今日はどんな一日でしたか？</div>
+        </div>
+        <div class="summary-preview" id="summary-preview"></div>
+        <div class="summary-actions" id="summary-actions">
+          <button class="btn" style="font-size:12px;padding:5px 14px;" onclick="appendSummary()">日記に追記する</button>
+          <button class="btn gray" style="font-size:12px;padding:5px 14px;" onclick="dismissSummary()">閉じる</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="メッセージを入力..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn" style="padding:7px 16px;font-size:13px;" onclick="sendChat()">送信</button>
         </div>
       </div>
     </div>
@@ -377,6 +469,103 @@
         document.getElementById('memo-saved').textContent = '保存済み';
       }, 800);
     });
+
+    // ---- 明日の予定 ----
+    function loadSchedule(dateStr) {
+      const tomorrow = new Date(dateStr);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const key = 'neko-schedule-' + formatDate(tomorrow);
+      document.getElementById('schedule-text').value = localStorage.getItem(key) || '';
+      document.getElementById('schedule-status').textContent = '';
+    }
+
+    window.saveSchedule = () => {
+      const tomorrow = new Date(selectedDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const key = 'neko-schedule-' + formatDate(tomorrow);
+      localStorage.setItem(key, document.getElementById('schedule-text').value);
+      document.getElementById('schedule-status').textContent = '保存しました';
+      setTimeout(() => document.getElementById('schedule-status').textContent = '', 2000);
+    };
+
+    // ---- チャット ----
+    let chatHistory = [];
+
+    window.sendChat = async () => {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      chatHistory.push({ role: 'user', content: text });
+      appendMessage('user', text);
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory }),
+      });
+      const data = await res.json();
+      const reply = data.reply || 'エラーが発生しました';
+      chatHistory.push({ role: 'assistant', content: reply });
+      appendMessage('ai', reply);
+    };
+
+    function appendMessage(role, text) {
+      const el = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = `chat-msg ${role}`;
+      div.textContent = text;
+      el.appendChild(div);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    window.summarizeChat = async () => {
+      if (chatHistory.length < 2) return;
+      const preview = document.getElementById('summary-preview');
+      const actions = document.getElementById('summary-actions');
+      preview.style.display = 'block';
+      preview.textContent = '要約中...';
+      actions.style.display = 'none';
+
+      const res = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory }),
+      });
+      const data = await res.json();
+      preview.textContent = data.summary || 'エラーが発生しました';
+      actions.style.display = 'flex';
+    };
+
+    window.appendSummary = async () => {
+      const summary = document.getElementById('summary-preview').textContent;
+      const current = document.getElementById('diary-text').value.trim();
+      const newText = current ? current + '\n\n' + summary : summary;
+      document.getElementById('diary-text').value = newText;
+
+      // Firestoreに保存
+      const category = document.getElementById('cat-select').value;
+      await setDoc(doc(db, 'entries', selectedDate), {
+        date: selectedDate, text: newText, category, updatedAt: new Date().toISOString()
+      });
+      allEntries[selectedDate] = { date: selectedDate, text: newText, category };
+      renderCalendar();
+      renderEntryList();
+      dismissSummary();
+    };
+
+    window.dismissSummary = () => {
+      document.getElementById('summary-preview').style.display = 'none';
+      document.getElementById('summary-actions').style.display = 'none';
+    };
+
+    window.clearChat = () => {
+      chatHistory = [];
+      const el = document.getElementById('chat-messages');
+      el.innerHTML = '<div class="chat-msg ai">こんにちは！今日はどんな一日でしたか？</div>';
+      dismissSummary();
+    };
 
     // ---- 初期化 ----
     await loadAllEntries();

@@ -35,6 +35,47 @@ ${text}`,
   }
 });
 
+// チャット
+app.post('/api/chat', async (req, res) => {
+  const { messages } = req.body;
+  if (!messages?.length) return res.status(400).json({ error: 'メッセージが必要です' });
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: 'あなたは日記を書く手助けをする優しいAIアシスタントです。ユーザーの話を聞いて、今日あったことや気持ちを引き出してください。日本語で話してください。' },
+        ...messages,
+      ],
+    });
+    res.json({ reply: completion.choices[0].message.content });
+  } catch (err) {
+    console.error('チャットエラー:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 会話を日記に要約
+app.post('/api/summarize', async (req, res) => {
+  const { messages } = req.body;
+  if (!messages?.length) return res.status(400).json({ error: 'メッセージが必要です' });
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{
+        role: 'user',
+        content: `以下の会話をもとに、日記の文章として自然にまとめてください。一人称（私）で書き、です・ます調で。会話の要点を押さえて200文字程度にしてください。説明や前置きは不要です。
+
+会話：
+${messages.map(m => `${m.role === 'user' ? 'ユーザー' : 'AI'}: ${m.content}`).join('\n')}`,
+      }],
+    });
+    res.json({ summary: completion.choices[0].message.content.trim() });
+  } catch (err) {
+    console.error('要約エラー:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`サーバー起動中: http://localhost:${PORT}`));
 }
