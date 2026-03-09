@@ -317,13 +317,8 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
     import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
 
-    // Firebase設定（.envから読み込めないためここに記載 → 後で設定）
-    const firebaseConfig = {
-      apiKey: "REMOVED",
-      authDomain: "neko-dairy.firebaseapp.com",
-      projectId: "neko-dairy",
-      storageBucket: "neko-dairy.firebasestorage.app",
-    };
+    // Firebase設定をサーバーから取得
+    const firebaseConfig = await fetch('/api/firebase-config').then(r => r.json());
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
 

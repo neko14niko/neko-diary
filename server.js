@@ -10,6 +10,15 @@ const PORT = process.env.PORT || 56628;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'renderer')));
 
+app.get('/api/firebase-config', (req, res) => {
+  res.json({
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
+});
+
 app.post('/api/analyze', async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'テキストが必要です' });
